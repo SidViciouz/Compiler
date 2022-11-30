@@ -37,5 +37,4 @@ void printTree( TreeNode * );
 /*
  *
  */
-void printToTextFile(TokenType,const char*);
 #endif

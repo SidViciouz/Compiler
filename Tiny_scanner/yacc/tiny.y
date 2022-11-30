@@ -11,14 +11,19 @@
 #include "util.h"
 #include "scan.h"
 #include "parse.h"
+#include <stdio.h>
 
 #define YYSTYPE TreeNode *
 static char * savedName; /* for use in assignments */
 static int savedLineNo;  /* ditto */
 static TreeNode * savedTree; /* stores syntax tree for later return */
 
+int yyerror(char * message);
+static int yylex(void);
+
 %}
 
+%token RETURN WHILE INT VOID LBRACKET RBRACKET COMMA NEQ LTE GT GTE LBRACE RBRACE LCOMMENT RCOMMENT
 %token IF THEN ELSE END REPEAT UNTIL READ WRITE
 %token ID NUM 
 %token ASSIGN EQ LT PLUS MINUS TIMES OVER LPAREN RPAREN SEMI
@@ -154,10 +159,20 @@ int yyerror(char * message)
  * compatible with ealier versions of the TINY scanner
  */
 static int yylex(void)
-{ return getToken(); }
+{return getToken(); }
 
 TreeNode * parse(void)
 { yyparse();
   return savedTree;
 }
+
+/*
+void main()
+{
+	listing = stdout;
+	printf("here!\n");
+	parse();
+	return;
+}
+*/
 

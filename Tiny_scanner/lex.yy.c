@@ -1976,6 +1976,7 @@ void yyfree (void * ptr )
 TokenType getToken(void)
 { static int firstTime = TRUE;
   TokenType currentToken;
+ 
   if (firstTime)
   { firstTime = FALSE;
     lineno++;
@@ -1985,7 +1986,7 @@ TokenType getToken(void)
   }
   currentToken = yylex();
   strncpy(tokenString,yytext,MAXTOKENLEN);
-  
+ 
   if(TraceScan == TRUE)
   {
 	  if(currentToken == LCOMMENT)
@@ -1998,7 +1999,8 @@ TokenType getToken(void)
 		//error occurs
 	    	//fprintf(listing,"\t%d: ",lineno);
 	    	//printToken(ERROR,"Comment Error");
-	    	printToTextFile(ERROR,"Comment Error");
+	    	
+		//printToTextFile(ERROR,"Comment Error");
 		
 	  }
 
@@ -2006,7 +2008,8 @@ TokenType getToken(void)
 	  {
 	    	//fprintf(listing,"\t%d: ",lineno);
 	    	//printToken(currentToken,tokenString);
-	    	printToTextFile(currentToken,tokenString);
+	    	
+		//printToTextFile(currentToken,tokenString);
 	  }
 
   }
@@ -2020,11 +2023,12 @@ TokenType getToken(void)
 	  {
 	    	//fprintf(listing,"\t%d: ",lineno);
 	    	//printToken(ERROR,"Comment Error");
-	    	printToTextFile(ERROR,"Comment Error");
+	    	
+		//printToTextFile(ERROR,"Comment Error");
 
 		//fprintf(listing,"\t%d: ",lineno);
 		//printToken(currentToken,tokenString);
-	   	printToTextFile(currentToken,tokenString);
+	   	//printToTextFile(currentToken,tokenString);
 	  }
   }
   
