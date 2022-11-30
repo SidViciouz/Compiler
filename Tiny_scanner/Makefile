@@ -2,8 +2,8 @@ CC = gcc
 
 OBJS = main.o util.o lex.yy.o
 
-ID : $(OBJS)
-	$(CC) -g -o ID $(OBJS) -ll
+hw1_binary : $(OBJS)
+	$(CC) -g -o hw1_binary $(OBJS) -ll
 
 main.o : main.c util.h globals.h
 	$(CC) -c main.c
@@ -22,4 +22,4 @@ clean :
 	rm util.o
 	rm lex.yy.o
 	rm lex.yy.c
-	rm ID
+	rm hw1_binary

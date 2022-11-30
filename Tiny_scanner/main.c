@@ -64,7 +64,12 @@ main( int argc, char * argv[] )
   listing = stdout; /* send listing to screen */
   fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
 
-  txt = fopen("hw1_20171705.txt","w");
+  char sourceName[120];
+  strcpy(sourceName,pgm);
+  strtok(sourceName,".");
+
+  strcat(sourceName,"_20171705.txt");
+  txt = fopen(sourceName,"w");
   fprintf(txt,"    line number			token			lexeme\n");
   fprintf(txt,"================================================================================\n");
 #if NO_PARSE

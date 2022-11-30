@@ -13,34 +13,32 @@
 char tokenString[MAXTOKENLEN+1];
 %}
 
+newline     \n
+whitespace  [ \t]+
 digit       [0-9]
 number      {digit}+
 letter      [a-zA-Z]
-identifier  {letter}+{number}*
-newline     \n
-whitespace  [ \t]+
+identifier  {letter}+
+lexicalerror {identifier}{number}|{number}{identifier}
 
 %%
 
+"return"	{return RETURN;}
+"while"		{return WHILE;}
+"int"		{return INT;}
+"if"            {return IF;}
+"void"		{return VOID;}
+"else"          {return ELSE;}
 "["		{return LBRACKET;}
 "]"		{return RBRACKET;}
 ","		{return COMMA;}
-"return"	{return RETURN;}
-"while"		{return WHILE;}
-"/*"		{return COMMENTB;}
-"*/"		{return COMMENTE;}
-"int"		{return INT;}
-"if"            {return IF;}
-"then"          {return THEN;}
-"else"          {return ELSE;}
-"end"           {return END;}
-"repeat"        {return REPEAT;}
-"until"         {return UNTIL;}
-"read"          {return READ;}
-"write"         {return WRITE;}
-":="            {return ASSIGN;}
-"="             {return EQ;}
+"="            {return ASSIGN;}
+"=="             {return EQ;}
+"!="		{return NEQ;}
 "<"             {return LT;}
+"<="		{return LTE;}
+">"		{return GT;}
+">="		{return GTE;}
 "+"             {return PLUS;}
 "-"             {return MINUS;}
 "*"             {return TIMES;}
@@ -48,19 +46,15 @@ whitespace  [ \t]+
 "("             {return LPAREN;}
 ")"             {return RPAREN;}
 ";"             {return SEMI;}
+{lexicalerror}  {return ERROR;}
 {number}        {return NUM;}
 {identifier}    {return ID;}
 {newline}       {lineno++;}
 {whitespace}    {/* skip whitespace */}
 "{"		{return LBRACE;}
 "}"		{return RBRACE;}
-"{"             { char c;
-                  do
-                  { c = input();
-                    if (c == EOF) break;
-                    if (c == '\n') lineno++;
-                  } while (c != '}');
-                }
+"/*"		{return LCOMMENT;}
+"*/"		{return RCOMMENT;}
 .               {return ERROR;}
 
 %%
@@ -80,42 +74,42 @@ TokenType getToken(void)
   
   if(TraceScan == TRUE)
   {
-	  if(currentToken == COMMENTB)
+	  if(currentToken == LCOMMENT)
 	  {
 		TraceScan = FALSE;
 	  }	  
 
-	  else if(currentToken == COMMENTE)
+	  else if(currentToken == RCOMMENT)
 	  {
 		//error occurs
-	    	fprintf(listing,"\t%d: ",lineno);
-	    	printToken(ERROR,"Comment Error");
+	    	//fprintf(listing,"\t%d: ",lineno);
+	    	//printToken(ERROR,"Comment Error");
 	    	printToTextFile(ERROR,"Comment Error");
 		
 	  }
 
 	  if (TraceScan)
 	  {
-	    	fprintf(listing,"\t%d: ",lineno);
-	    	printToken(currentToken,tokenString);
+	    	//fprintf(listing,"\t%d: ",lineno);
+	    	//printToken(currentToken,tokenString);
 	    	printToTextFile(currentToken,tokenString);
 	  }
 
   }
   else
   {
-	  if(currentToken == COMMENTE)
+	  if(currentToken == RCOMMENT)
 	  {
 		TraceScan = TRUE;
 	  }
 	  else if(currentToken == ENDFILE)
 	  {
-	    	fprintf(listing,"\t%d: ",lineno);
-	    	printToken(ERROR,"Comment Error");
+	    	//fprintf(listing,"\t%d: ",lineno);
+	    	//printToken(ERROR,"Comment Error");
 	    	printToTextFile(ERROR,"Comment Error");
 
-		fprintf(listing,"\t%d: ",lineno);
-		printToken(currentToken,tokenString);
+		//fprintf(listing,"\t%d: ",lineno);
+		//printToken(currentToken,tokenString);
 	   	printToTextFile(currentToken,tokenString);
 	  }
   }
