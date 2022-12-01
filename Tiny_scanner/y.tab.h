@@ -61,26 +61,22 @@ extern int yydebug;
     LCOMMENT = 271,
     RCOMMENT = 272,
     IF = 273,
-    THEN = 274,
-    ELSE = 275,
-    END = 276,
-    REPEAT = 277,
-    UNTIL = 278,
-    READ = 279,
-    WRITE = 280,
-    ID = 281,
-    NUM = 282,
-    ASSIGN = 283,
-    EQ = 284,
-    LT = 285,
-    PLUS = 286,
-    MINUS = 287,
-    TIMES = 288,
-    OVER = 289,
-    LPAREN = 290,
-    RPAREN = 291,
-    SEMI = 292,
-    ERROR = 293
+    ELSE = 274,
+    REPEAT = 275,
+    UNTIL = 276,
+    ID = 277,
+    NUM = 278,
+    ASSIGN = 279,
+    EQ = 280,
+    LT = 281,
+    PLUS = 282,
+    MINUS = 283,
+    TIMES = 284,
+    OVER = 285,
+    LPAREN = 286,
+    RPAREN = 287,
+    SEMI = 288,
+    ERROR = 289
   };
 #endif
 /* Tokens.  */
@@ -100,26 +96,22 @@ extern int yydebug;
 #define LCOMMENT 271
 #define RCOMMENT 272
 #define IF 273
-#define THEN 274
-#define ELSE 275
-#define END 276
-#define REPEAT 277
-#define UNTIL 278
-#define READ 279
-#define WRITE 280
-#define ID 281
-#define NUM 282
-#define ASSIGN 283
-#define EQ 284
-#define LT 285
-#define PLUS 286
-#define MINUS 287
-#define TIMES 288
-#define OVER 289
-#define LPAREN 290
-#define RPAREN 291
-#define SEMI 292
-#define ERROR 293
+#define ELSE 274
+#define REPEAT 275
+#define UNTIL 276
+#define ID 277
+#define NUM 278
+#define ASSIGN 279
+#define EQ 280
+#define LT 281
+#define PLUS 282
+#define MINUS 283
+#define TIMES 284
+#define OVER 285
+#define LPAREN 286
+#define RPAREN 287
+#define SEMI 288
+#define ERROR 289
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

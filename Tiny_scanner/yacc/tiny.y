@@ -24,16 +24,27 @@ static int yylex(void);
 %}
 
 %token RETURN WHILE INT VOID LBRACKET RBRACKET COMMA NEQ LTE GT GTE LBRACE RBRACE LCOMMENT RCOMMENT
-%token IF THEN ELSE END REPEAT UNTIL READ WRITE
+%token IF ELSE REPEAT UNTIL
 %token ID NUM 
 %token ASSIGN EQ LT PLUS MINUS TIMES OVER LPAREN RPAREN SEMI
 %token ERROR 
 
 %% /* Grammar for TINY */
-
+/*
 program     : stmt_seq
                  { savedTree = $1;} 
             ;
+*/
+program     : declaration
+            ;
+declaration : type_spec LPAREN type_spec RPAREN LBRACE stmt_seq RBRACE
+	    ;
+type_spec   : type ID
+            | type
+            ;
+type	    : INT
+            | VOID
+	    ;
 stmt_seq    : stmt_seq SEMI stmt
                  { YYSTYPE t = $1;
                    if (t != NULL)
@@ -43,25 +54,24 @@ stmt_seq    : stmt_seq SEMI stmt
                      $$ = $1; }
                      else $$ = $3;
                  }
-            | stmt  { $$ = $1; }
+            | stmt { $$ = $1; }
             ;
 stmt        : if_stmt { $$ = $1; }
             | repeat_stmt { $$ = $1; }
             | assign_stmt { $$ = $1; }
-            | read_stmt { $$ = $1; }
-            | write_stmt { $$ = $1; }
+            | type ID
             | error  { $$ = NULL; }
             ;
-if_stmt     : IF exp THEN stmt_seq END
+if_stmt     : IF LPAREN exp RPAREN stmt
                  { $$ = newStmtNode(IfK);
-                   $$->child[0] = $2;
-                   $$->child[1] = $4;
+                   $$->child[0] = $3;
+                   $$->child[1] = $5;
                  }
-            | IF exp THEN stmt_seq ELSE stmt_seq END
+	    | IF LPAREN exp RPAREN stmt ELSE stmt
                  { $$ = newStmtNode(IfK);
-                   $$->child[0] = $2;
-                   $$->child[1] = $4;
-                   $$->child[2] = $6;
+                   $$->child[0] = $3;
+                   $$->child[1] = $5;
+                   $$->child[2] = $7;
                  }
             ;
 repeat_stmt : REPEAT stmt_seq UNTIL exp
@@ -79,17 +89,6 @@ assign_stmt : ID { savedName = copyString(tokenString);
                    $$->lineno = savedLineNo;
                  }
             ;
-read_stmt   : READ ID
-                 { $$ = newStmtNode(ReadK);
-                   $$->attr.name =
-                     copyString(tokenString);
-                 }
-            ;
-write_stmt  : WRITE exp
-                 { $$ = newStmtNode(WriteK);
-                   $$->child[0] = $2;
-                 }
-            ;
 exp         : simple_exp LT simple_exp 
                  { $$ = newExpNode(OpK);
                    $$->child[0] = $1;
@@ -101,6 +100,13 @@ exp         : simple_exp LT simple_exp
                    $$->child[0] = $1;
                    $$->child[1] = $3;
                    $$->attr.op = EQ;
+                 }
+	    | simple_exp NEQ simple_exp
+                 {
+                   $$ = newExpNode(OpK);
+                   $$->child[0] = $1;
+                   $$->child[1] = $3;
+                   $$->attr.op = NEQ;
                  }
             | simple_exp { $$ = $1; }
             ;
