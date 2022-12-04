@@ -51,16 +51,16 @@ type_spec   : INT ID
 type	    : INT
             | VOID
 	    ;
-stmt_seq    : stmt_seq SEMI stmt
+stmt_seq    : stmt_seq stmt SEMI
                  { YYSTYPE t = $1;
                    if (t != NULL)
                    { while (t->sibling != NULL)
                         t = t->sibling;
-                     t->sibling = $3;
+                     t->sibling = $2;
                      $$ = $1; }
-                     else $$ = $3;
+                     else $$ = $2;
                  }
-            | stmt { $$ = $1; }
+            | stmt SEMI{ $$ = $1; }
             ;
 stmt        : if_stmt { $$ = $1; }
             | repeat_stmt { $$ = $1; }
