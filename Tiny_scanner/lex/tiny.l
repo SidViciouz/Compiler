@@ -117,7 +117,6 @@ TokenType getToken(void)
 	   	//printToTextFile(currentToken,tokenString);
 	  }
   }
-  printf("[%d]\n",currentToken); 
   return currentToken;
 }
 
