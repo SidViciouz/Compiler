@@ -51,7 +51,7 @@ type_spec   : INT ID
 type	    : INT
             | VOID
 	    ;
-stmt_seq    : stmt_seq stmt SEMI
+stmt_seq    : stmt_seq stmt
                  { YYSTYPE t = $1;
                    if (t != NULL)
                    { while (t->sibling != NULL)
@@ -60,12 +60,12 @@ stmt_seq    : stmt_seq stmt SEMI
                      $$ = $1; }
                      else $$ = $2;
                  }
-            | stmt SEMI{ $$ = $1; }
+            | stmt { $$ = $1; }
             ;
 stmt        : if_stmt { $$ = $1; }
             | repeat_stmt { $$ = $1; }
             | assign_stmt { $$ = $1; }
-            | type ID
+            | type ID SEMI
             | error  { $$ = NULL; }
             ;
 if_stmt     : IF LPAREN exp RPAREN stmt
@@ -77,7 +77,7 @@ if_stmt     : IF LPAREN exp RPAREN stmt
                  { $$ = newStmtNode(IfK);
                    $$->child[0] = $3;
                    $$->child[1] = $5;
-                   $$->child[2] = $7;
+		   $$->child[2] = $7;
                  }
             ;
 repeat_stmt : REPEAT stmt_seq UNTIL exp
@@ -88,7 +88,7 @@ repeat_stmt : REPEAT stmt_seq UNTIL exp
             ;
 assign_stmt : ID { savedName = copyString(tokenString);
                    savedLineNo = lineno; }
-              ASSIGN exp
+              ASSIGN exp SEMI
                  { $$ = newStmtNode(AssignK);
                    $$->child[0] = $4;
                    $$->attr.name = savedName;
