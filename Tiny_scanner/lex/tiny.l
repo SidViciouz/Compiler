@@ -55,7 +55,7 @@ lexicalerror {identifier}{number}|{number}{identifier}
 "}"		{return RBRACE;}
 "/*"		{return LCOMMENT;}
 "*/"		{return RCOMMENT;}
-.               {return ERROR;}
+
 
 %%
 
@@ -117,8 +117,7 @@ TokenType getToken(void)
 	   	//printToTextFile(currentToken,tokenString);
 	  }
   }
-  
-
+  printf("[%d]\n",currentToken); 
   return currentToken;
 }
 

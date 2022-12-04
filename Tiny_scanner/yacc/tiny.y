@@ -36,11 +36,17 @@ program     : stmt_seq
             ;
 */
 program     : declaration
+		 { savedTree = $1;}
+	    | global_seq declaration
+		 { savedTree = $2;}
             ;
-declaration : type_spec LPAREN type_spec RPAREN LBRACE stmt_seq RBRACE
-	    ;
-type_spec   : type ID
-            | type
+global_seq  : global_seq INT ID SEMI
+            | INT ID SEMI
+            ;
+declaration : type ID LPAREN type_spec RPAREN LBRACE stmt_seq RBRACE
+            ;
+type_spec   : INT ID
+            | VOID
             ;
 type	    : INT
             | VOID
