@@ -16,6 +16,7 @@
 #define YYSTYPE TreeNode *
 static char * savedName; /* for use in assignments */
 static int savedLineNo;  /* ditto */
+static int savedValue;
 static TreeNode * savedTree; /* stores syntax tree for later return */
 
 int yyerror(char * message);
@@ -158,19 +159,41 @@ factor      : LPAREN exp RPAREN
             | error { $$ = NULL; }
             ;
 */
-program     : declaration_list
+program     : declaration_list { savedTree = $1;}
 	    ;
-declaration_list : declaration_list declaration
-	    | declaration
+declaration_list : declaration_list declaration { YYSTYPE t = $1;
+						if(t != NULL)
+						{ while(t->sibling != NULL)
+							t = t->sibling;
+							t->sibling = $2;
+							$$ = $1;}
+							else $$ = $2;
+						}
+	    | declaration { $$ = $1;}
 	    ;
-declaration : var_declaration
-	    | fun_declaration
+declaration : var_declaration { $$ = $1;}
+	    | fun_declaration { $$ = $1;}
 	    ;
-var_declaration : type_specifier ID SEMI
-	    | type_specifier ID LBRACKET NUM RBRACKET SEMI
+var_declaration : type_specifier ID { savedName = copyString(tokenString); }
+				 SEMI { $$ = newStmtNode(DeclareK);
+					$$->attr.name = savedName;
+					$$->child[0] = $1;
+					}
+	    | type_specifier ID { savedName = copyString(tokenString);}
+		LBRACKET NUM { savedValue = atoi(tokenString);}
+		RBRACKET SEMI  { $$ = newStmtNode(DeclareK);
+				$$->attr.name = savedName;
+				$$->child[0] = $1;
+				$$->child[1] = newExpNode(ConstK);
+				$$->child[1]->attr.val = savedValue;
+				}
 	    ;
-type_specifier : INT
-	    | VOID
+type_specifier : INT { $$ = newExpNode(TypeK);
+			$$->type = Integer;
+			}
+	    | VOID { $$ = newExpNode(TypeK);
+			$$->type = Void;
+			}
 	    ;
 fun_declaration : type_specifier ID LPAREN params RPAREN compound_stmt
 	    ;
@@ -191,11 +214,11 @@ local_declarations : local_declarations var_declaration
 statement_list : statement_list statement
 	    | %empty
 	    ;
-statement   : expression_stmt
-	    | compound_stmt
-	    | selection_stmt
-	    | iteration_stmt
-	    | return_stmt
+statement   : expression_stmt { $$ = $1; }
+	    | compound_stmt { $$ = $1; }
+	    | selection_stmt { $$ = $1; }
+	    | iteration_stmt { $$ = $1; }
+	    | return_stmt { $$ = $1; }
 	    ;
 expression_stmt : expression SEMI
 	    | SEMI
