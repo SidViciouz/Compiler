@@ -159,6 +159,7 @@ factor      : LPAREN exp RPAREN
             | error { $$ = NULL; }
             ;
 */
+
 program     : declaration_list { savedTree = $1;}
 	    ;
 declaration_list : declaration_list declaration { YYSTYPE t = $1;
@@ -176,13 +177,13 @@ declaration : var_declaration { $$ = $1;}
 	    ;
 var_declaration : type_specifier ID { savedName = copyString(tokenString); }
 				 SEMI { $$ = newStmtNode(DeclareK);
-					$$->attr.name = savedName;
+					$$->attr.name = copyString(savedName);
 					$$->child[0] = $1;
 					}
 	    | type_specifier ID { savedName = copyString(tokenString);}
 		LBRACKET NUM { savedValue = atoi(tokenString);}
 		RBRACKET SEMI  { $$ = newStmtNode(DeclareK);
-				$$->attr.name = savedName;
+				$$->attr.name = copyString(savedName);
 				$$->child[0] = $1;
 				$$->child[1] = newExpNode(ConstK);
 				$$->child[1]->attr.val = savedValue;
@@ -195,12 +196,12 @@ type_specifier : INT { $$ = newExpNode(TypeK);
 			$$->type = Void;
 			}
 	    ;
-fun_declaration : type_specifier ID { savedName = copyString(tokenString);}
+fun_declaration : type_specifier ID { savedName = copyString(tokenString); }
 		LPAREN params RPAREN compound_stmt { $$ = newStmtNode(DeclareK);
-						$$->attr.name = savedName;
+						$$->attr.name = copyString(savedName);
 						$$->child[0] = $1;
-						$$->child[1] = $4;
-						$$->child[2] = $6;
+						$$->child[1] = $5;
+						$$->child[2] = $7;
 						}
 	    ;
 params	    : param_list { $$ = $1;}
@@ -220,13 +221,13 @@ param_list  : param_list COMMA param { YYSTYPE t = $1;
 	    | param { $$ = $1;}
 	    ;
 param	    : type_specifier ID { savedName = copyString(tokenString); 
-				$$ = newExpNode(DeclareK);
-				$$->attr.name = savedName;
+				$$ = newStmtNode(DeclareK);
+				$$->attr.name = copyString(savedName);
 				$$->child[0] = $1;
 				}
 	    | type_specifier ID {savedName = copyString(tokenString);}
-		LBRACKET RBRACKET { $$ = newExpNode(DeclareK);
-					$$->attr.name = savedName;
+		LBRACKET RBRACKET { $$ = newStmtNode(DeclareK);
+					$$->attr.name = copyString(savedName);
 					$$->child[0] = $1;
 					}
 	    ;
@@ -296,8 +297,8 @@ var	    : ID { $$ = newExpNode(IdK);
 			$$->attr.name = copyString(tokenString); }
 	    | ID { savedName = copyString(tokenString); }
 		LBRACKET expression RBRACKET { $$ = newExpNode(IdK);
-						$$->attr.name = savedName;
-						$$->child[0] = $3;
+						$$->attr.name = copyString(savedName);
+						$$->child[0] = $4;
 						}
 						
 	    ;
@@ -358,14 +359,14 @@ mulop	    : TIMES { $$ = newExpNode(OpK);
 factor	    : LPAREN expression RPAREN { $$ = $2; }
 	    | var { $$ = $1;}
 	    | call { $$ = $1;}
-	    | NUM { $$ = newExpNode(IdK);
+	    | NUM { $$ = newExpNode(ConstK);
 			$$->attr.val = atoi(tokenString);
 			}
 	    ;
 call	    : ID { savedName = copyString(tokenString);}
 			LPAREN args RPAREN { $$ = newStmtNode(CallK);
-					$$->attr.name = savedName;
-					$$->child[0] = $3;
+					$$->attr.name = copyString(savedName);
+					$$->child[0] = $4;
 					}
 	    ;
 args	    : arg_list { $$ = $1;}

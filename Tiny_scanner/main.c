@@ -76,8 +76,8 @@ main( int argc, char * argv[] )
   while (getToken()!=ENDFILE);
 
 #else
-  //printf("[%d]\n",getToken());
   syntaxTree = parse();
+  TraceParse = TRUE;
   if (TraceParse) {
     fprintf(listing,"\nSyntax tree:\n");
     printTree(syntaxTree);

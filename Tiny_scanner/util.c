@@ -153,6 +153,22 @@ void printTree( TreeNode * tree )
         case WriteK:
           fprintf(listing,"Write\n");
           break;
+	case DeclareK:
+	  fprintf(listing,"Declare\n");
+	  fprintf(listing,"[%s]\n",tree->attr.name);
+	  break;
+	case CompoundK:
+	  fprintf(listing,"Compound\n");
+	  break;
+	case WhileK:
+	  fprintf(listing,"While\n");
+	  break;
+	case ReturnK:
+	  fprintf(listing,"Return\n");
+	  break;
+	case CallK:
+	  fprintf(listing,"Call\n");
+	  break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
           break;
@@ -170,6 +186,12 @@ void printTree( TreeNode * tree )
         case IdK:
           fprintf(listing,"Id: %s\n",tree->attr.name);
           break;
+	case TypeK:
+	  if(tree->type == Integer)
+	  	fprintf(listing,"Type: int\n");
+	  else
+	  	fprintf(listing,"Type: void\n");
+	  break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
           break;
