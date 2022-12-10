@@ -154,8 +154,7 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Write\n");
           break;
 	case DeclareK:
-	  fprintf(listing,"Declare\n");
-	  fprintf(listing,"[%s]\n",tree->attr.name);
+	  fprintf(listing,"Declare : %s\n",tree->attr.name);
 	  break;
 	case CompoundK:
 	  fprintf(listing,"Compound\n");

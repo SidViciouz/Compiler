@@ -15,6 +15,7 @@
 
 #define YYSTYPE TreeNode *
 static char * savedName; /* for use in assignments */
+static char * savedNamet;
 static int savedLineNo;  /* ditto */
 static int savedValue;
 static TreeNode * savedTree; /* stores syntax tree for later return */
@@ -175,15 +176,13 @@ declaration_list : declaration_list declaration { YYSTYPE t = $1;
 declaration : var_declaration { $$ = $1;}
 	    | fun_declaration { $$ = $1;}
 	    ;
-var_declaration : type_specifier ID { savedName = copyString(tokenString); }
-				 SEMI { $$ = newStmtNode(DeclareK);
-					$$->attr.name = copyString(savedName);
+var_declaration : type_specifier id SEMI { $$ = newStmtNode(DeclareK);
+					$$->attr.name = $2->attr.name;
 					$$->child[0] = $1;
 					}
-	    | type_specifier ID { savedName = copyString(tokenString);}
-		LBRACKET NUM { savedValue = atoi(tokenString);}
+	    | type_specifier id LBRACKET NUM { savedValue = atoi(tokenString);}
 		RBRACKET SEMI  { $$ = newStmtNode(DeclareK);
-				$$->attr.name = copyString(savedName);
+				$$->attr.name = $2->attr.name;
 				$$->child[0] = $1;
 				$$->child[1] = newExpNode(ConstK);
 				$$->child[1]->attr.val = savedValue;
@@ -196,13 +195,18 @@ type_specifier : INT { $$ = newExpNode(TypeK);
 			$$->type = Void;
 			}
 	    ;
-fun_declaration : type_specifier ID { savedName = copyString(tokenString); }
-		LPAREN params RPAREN compound_stmt { $$ = newStmtNode(DeclareK);
-						$$->attr.name = copyString(savedName);
+fun_declaration : type_specifier id
+		LPAREN params RPAREN compound_stmt {
+						$$ = newStmtNode(DeclareK);
+						$$->attr.name = $2->attr.name;
 						$$->child[0] = $1;
-						$$->child[1] = $5;
-						$$->child[2] = $7;
+						$$->child[1] = $4;
+						$$->child[2] = $6;
 						}
+	    ;
+id	    : ID { $$ = newExpNode(IdK);
+		   $$->attr.name = copyString(tokenString);
+		}
 	    ;
 params	    : param_list { $$ = $1;}
 	    | VOID { $$ = newExpNode(TypeK);
@@ -220,14 +224,14 @@ param_list  : param_list COMMA param { YYSTYPE t = $1;
 						
 	    | param { $$ = $1;}
 	    ;
-param	    : type_specifier ID { savedName = copyString(tokenString); 
+param	    : type_specifier id { 
 				$$ = newStmtNode(DeclareK);
-				$$->attr.name = copyString(savedName);
+				$$->attr.name = $2->attr.name;
 				$$->child[0] = $1;
 				}
-	    | type_specifier ID {savedName = copyString(tokenString);}
+	    | type_specifier id
 		LBRACKET RBRACKET { $$ = newStmtNode(DeclareK);
-					$$->attr.name = copyString(savedName);
+					$$->attr.name = $2->attr.name;
 					$$->child[0] = $1;
 					}
 	    ;
@@ -288,17 +292,16 @@ return_stmt : RETURN SEMI { $$ = newStmtNode(ReturnK); }
 					}
 	    ;
 expression  : var ASSIGN expression { $$ = newStmtNode(AssignK);
+					$$->attr.name = $1->attr.name;
 					$$->child[0] = $1;
 					$$->child[1] = $3;
 					}
 	    | simple_expression { $$ = $1;}
 	    ;
-var	    : ID { $$ = newExpNode(IdK);
-			$$->attr.name = copyString(tokenString); }
-	    | ID { savedName = copyString(tokenString); }
-		LBRACKET expression RBRACKET { $$ = newExpNode(IdK);
-						$$->attr.name = copyString(savedName);
-						$$->child[0] = $4;
+var	    : id { $$ = $1;}
+	    | id LBRACKET expression RBRACKET { $$ = newExpNode(IdK);
+						$$->attr.name = $1->attr.name;
+						$$->child[0] = $3;
 						}
 						
 	    ;
@@ -363,10 +366,9 @@ factor	    : LPAREN expression RPAREN { $$ = $2; }
 			$$->attr.val = atoi(tokenString);
 			}
 	    ;
-call	    : ID { savedName = copyString(tokenString);}
-			LPAREN args RPAREN { $$ = newStmtNode(CallK);
-					$$->attr.name = copyString(savedName);
-					$$->child[0] = $4;
+call	    : id LPAREN args RPAREN { $$ = newStmtNode(CallK);
+					$$->attr.name = $1->attr.name;
+					$$->child[0] = $3;
 					}
 	    ;
 args	    : arg_list { $$ = $1;}

@@ -72,7 +72,7 @@ TokenType getToken(void)
   }
   currentToken = yylex();
   strncpy(tokenString,yytext,MAXTOKENLEN);
- 
+
   if(TraceScan == TRUE)
   {
 	  if(currentToken == LCOMMENT)
