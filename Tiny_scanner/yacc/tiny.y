@@ -195,24 +195,67 @@ type_specifier : INT { $$ = newExpNode(TypeK);
 			$$->type = Void;
 			}
 	    ;
-fun_declaration : type_specifier ID LPAREN params RPAREN compound_stmt
+fun_declaration : type_specifier ID { savedName = copyString(tokenString);}
+		LPAREN params RPAREN compound_stmt { $$ = newStmtNode(DeclareK);
+						$$->attr.name = savedName;
+						$$->child[0] = $1;
+						$$->child[1] = $4;
+						$$->child[2] = $6;
+						}
 	    ;
-params	    : param_list
-	    | VOID
+params	    : param_list { $$ = $1;}
+	    | VOID { $$ = newExpNode(TypeK);
+			$$->type = Void;
+			}
 	    ;
-param_list  : param_list COMMA param
-	    | param
+param_list  : param_list COMMA param { YYSTYPE t = $1;
+					if(t!=NULL)
+					{ while(t->sibling != NULL)
+						t = t->sibling;
+						t->sibling = $3;
+						$$ = $1;}
+					else $$ = $3;
+					}
+						
+	    | param { $$ = $1;}
 	    ;
-param	    : type_specifier ID
-	    | type_specifier ID LBRACKET RBRACKET
+param	    : type_specifier ID { savedName = copyString(tokenString); 
+				$$ = newExpNode(DeclareK);
+				$$->attr.name = savedName;
+				$$->child[0] = $1;
+				}
+	    | type_specifier ID {savedName = copyString(tokenString);}
+		LBRACKET RBRACKET { $$ = newExpNode(DeclareK);
+					$$->attr.name = savedName;
+					$$->child[0] = $1;
+					}
 	    ;
-compound_stmt : LBRACE local_declarations statement_list RBRACE
+compound_stmt : LBRACE local_declarations statement_list RBRACE { $$ = newStmtNode(CompoundK);
+								$$->child[0] = $2;
+								$$->child[1] = $3;
+								}
 	    ;
-local_declarations : local_declarations var_declaration
-	    | %empty
+local_declarations : local_declarations var_declaration { YYSTYPE t = $1;
+							if(t != NULL)
+							{ while(t->sibling != NULL)
+								t = t->sibling;
+								t->sibling = $2;
+								$$ = $1;
+							}
+							else $$ = $2;
+							}
+	    | %empty { $$ = NULL;}
 	    ;
-statement_list : statement_list statement
-	    | %empty
+statement_list : statement_list statement { YYSTYPE t = $1;
+						if( t != NULL)
+						{ while(t->sibling != NULL)
+							t = t->sibling;
+							t->sibling = $2;
+							$$ = $1;
+						}
+						else $$ = $2;
+						}
+	    | %empty { $$ = NULL;}
 	    ;
 statement   : expression_stmt { $$ = $1; }
 	    | compound_stmt { $$ = $1; }
@@ -220,57 +263,123 @@ statement   : expression_stmt { $$ = $1; }
 	    | iteration_stmt { $$ = $1; }
 	    | return_stmt { $$ = $1; }
 	    ;
-expression_stmt : expression SEMI
-	    | SEMI
+expression_stmt : expression SEMI { $$ = $1; }
+	    | SEMI { $$ = NULL; }
 	    ;
-selection_stmt : IF LPAREN expression RPAREN statement
-	    | IF LPAREN expression RPAREN statement ELSE statement
+selection_stmt : IF LPAREN expression RPAREN statement { $$ = newStmtNode(IfK);
+							$$->child[0] = $3;
+							$$->child[1] = $5;
+							} 
+	    | IF LPAREN expression RPAREN statement ELSE statement { $$ = newStmtNode(IfK);
+								$$->child[0] = $3;
+								$$->child[1] = $5;
+								$$->child[2] = $7;
+								}
 	    ;
-iteration_stmt : WHILE LPAREN expression RPAREN statement
+iteration_stmt : WHILE LPAREN expression RPAREN statement { $$ = newStmtNode(WhileK);
+							$$->child[0] = $3;
+							$$->child[1] = $5;
+							}
 	    ;
-return_stmt : RETURN SEMI
-	    | RETURN expression SEMI
+return_stmt : RETURN SEMI { $$ = newStmtNode(ReturnK); } 
+	    | RETURN expression SEMI { $$ = newStmtNode(ReturnK);
+					$$->child[0] = $2;
+					}
 	    ;
-expression  : var ASSIGN expression
-	    | simple_expression
+expression  : var ASSIGN expression { $$ = newStmtNode(AssignK);
+					$$->child[0] = $1;
+					$$->child[1] = $3;
+					}
+	    | simple_expression { $$ = $1;}
 	    ;
-var	    : ID
-	    | ID LBRACKET expression RBRACKET
+var	    : ID { $$ = newExpNode(IdK);
+			$$->attr.name = copyString(tokenString); }
+	    | ID { savedName = copyString(tokenString); }
+		LBRACKET expression RBRACKET { $$ = newExpNode(IdK);
+						$$->attr.name = savedName;
+						$$->child[0] = $3;
+						}
+						
 	    ;
-simple_expression : additive_expression relop additive_expression
-	    | additive_expression
+simple_expression : additive_expression relop additive_expression { $$ = newExpNode(OpK);
+								$$->child[0] = $1;
+								$$->child[1] = $3;
+								$$->attr.op = $2->attr.op;
+								}
+	    | additive_expression { $$ = $1;}
 	    ;
-relop	    : LTE
-	    | LT
-	    | GT
-	    | GTE
-	    | EQ
-	    | NEQ
+relop	    : LTE { $$ = newExpNode(OpK);
+			$$->attr.op = LTE;
+			}
+	    | LT { $$ = newExpNode(OpK);
+			$$->attr.op = LT;
+			}
+	    | GT { $$ = newExpNode(OpK);
+			$$->attr.op = GT;
+			}
+	    | GTE { $$ = newExpNode(OpK);
+			$$->attr.op = GTE;
+			}
+	    | EQ { $$ = newExpNode(OpK);
+			$$->attr.op = EQ;
+			}
+	    | NEQ { $$ = newExpNode(OpK);
+			$$->attr.op = NEQ;
+			}
 	    ;
-additive_expression : additive_expression addop term
-	    | term
+additive_expression : additive_expression addop term { $$ = newExpNode(OpK);
+							$$->child[0] = $1;
+							$$->child[1] = $3;
+							$$->attr.op = $2->attr.op;
+							}
+	    | term { $$ = $1; }
 	    ;
-addop	    : PLUS
-	    | MINUS
+addop	    : PLUS { $$ = newExpNode(OpK);
+			$$->attr.op = PLUS;
+			}
+	    | MINUS { $$ = newExpNode(OpK);
+			$$->attr.op = MINUS;
+			}
 	    ;
-term	    : term mulop factor
-	    | factor
+term	    : term mulop factor { $$ = newExpNode(OpK);
+				$$->child[0] = $1;
+				$$->child[1] = $3;
+				$$->attr.op = $2->attr.op;
+				}
+	    | factor {$$ = $1;}
 	    ;
-mulop	    : TIMES
-	    | OVER
+mulop	    : TIMES { $$ = newExpNode(OpK);
+			$$->attr.op = TIMES;
+			}
+	    | OVER { $$ = newExpNode(OpK);
+			$$->attr.op = OVER;
+			}
 	    ;
-factor	    : LPAREN expression RPAREN
-	    | var
-	    | call
-	    | NUM
+factor	    : LPAREN expression RPAREN { $$ = $2; }
+	    | var { $$ = $1;}
+	    | call { $$ = $1;}
+	    | NUM { $$ = newExpNode(IdK);
+			$$->attr.val = atoi(tokenString);
+			}
 	    ;
-call	    : ID LPAREN args RPAREN
+call	    : ID { savedName = copyString(tokenString);}
+			LPAREN args RPAREN { $$ = newStmtNode(CallK);
+					$$->attr.name = savedName;
+					$$->child[0] = $3;
+					}
 	    ;
-args	    : arg_list
-	    | %empty
+args	    : arg_list { $$ = $1;}
+	    | %empty {$$ = NULL;}
 	    ;
-arg_list    : arg_list COMMA expression
-	    | expression
+arg_list    : arg_list COMMA expression { YYSTYPE t = $1;
+					if(t!=NULL)
+					{ while(t->sibling != NULL)
+						t = t->sibling;
+						t->sibling = $3;
+						$$ = $1;}
+					else $$ = $3;
+					}
+	    | expression { $$ = $1;}
 	    ;
 
 %%
