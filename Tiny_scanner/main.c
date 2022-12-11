@@ -61,17 +61,17 @@ main( int argc, char * argv[] )
   { fprintf(stderr,"File %s not found\n",pgm);
     exit(1);
   }
-  listing = stdout; /* send listing to screen */
-  fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
+  //listing = stdout; /* send listing to screen */
+  //fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
 
   char sourceName[120];
   strcpy(sourceName,pgm);
   strtok(sourceName,".");
 
   strcat(sourceName,"_20171705.txt");
-  txt = fopen(sourceName,"w");
-  fprintf(txt,"    line number			token			lexeme\n");
-  fprintf(txt,"================================================================================\n");
+  listing = fopen(sourceName,"w");
+  fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
+
 #if NO_PARSE
   while (getToken()!=ENDFILE);
 

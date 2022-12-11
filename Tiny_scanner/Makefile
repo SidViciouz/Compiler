@@ -3,7 +3,7 @@ CC = gcc
 CODE = lex.yy.c y.tab.c util.c main.c
 
 hw1_binary : $(CODE)
-	$(CC) -g -o hw1_binary $(CODE) -ll
+	$(CC) -g -o hw2_binary $(CODE) -ll
 
 y.tab.c : yacc/tiny.y
 	bison -dy yacc/tiny.y
