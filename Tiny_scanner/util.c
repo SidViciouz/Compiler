@@ -145,7 +145,7 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Repeat\n");
           break;
         case AssignK:
-          fprintf(listing,"Assign to: %s\n",tree->attr.name);
+          fprintf(listing,"Assign\n");
           break;
         case ReadK:
           fprintf(listing,"Read: %s\n",tree->attr.name);
@@ -153,11 +153,17 @@ void printTree( TreeNode * tree )
         case WriteK:
           fprintf(listing,"Write\n");
           break;
-	case DeclareK:
-	  fprintf(listing,"Declare : %s\n",tree->attr.name);
+	case VdeclareK:
+	  fprintf(listing,"Variable Declare : %s\n",tree->attr.name);
+	  break;
+	case FdeclareK:
+	  fprintf(listing,"Function Declare : %s\n",tree->attr.name);
+	  break;
+	case ParameterK:
+	  fprintf(listing,"Parameter : %s\n",tree->attr.name);
 	  break;
 	case CompoundK:
-	  fprintf(listing,"Compound\n");
+	  fprintf(listing,"Compound Statement\n");
 	  break;
 	case WhileK:
 	  fprintf(listing,"While\n");
@@ -175,12 +181,21 @@ void printTree( TreeNode * tree )
     }
     else if (tree->nodekind==ExpK)
     { switch (tree->kind.exp) {
+	case SimK:
+          fprintf(listing,"Simple Expression\n");
+	  break;
+	case AddK:
+          fprintf(listing,"Additive Expression\n");
+	  break;
+	case VarK:
+          fprintf(listing,"Varible : %s\n",tree->attr.name);
+	  break;
         case OpK:
-          fprintf(listing,"Op: ");
+          fprintf(listing,"Operator: ");
           printToken(tree->attr.op,"\0");
           break;
         case ConstK:
-          fprintf(listing,"Const: %d\n",tree->attr.val);
+          fprintf(listing,"Constant: %d\n",tree->attr.val);
           break;
         case IdK:
           fprintf(listing,"Id: %s\n",tree->attr.name);

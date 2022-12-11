@@ -48,12 +48,12 @@ declaration_list : declaration_list declaration { YYSTYPE t = $1;
 declaration : var_declaration { $$ = $1;}
 	    | fun_declaration { $$ = $1;}
 	    ;
-var_declaration : type_specifier id SEMI { $$ = newStmtNode(DeclareK);
+var_declaration : type_specifier id SEMI { $$ = newStmtNode(VdeclareK);
 					$$->attr.name = $2->attr.name;
 					$$->child[0] = $1;
 					}
 	    | type_specifier id LBRACKET NUM { savedValue = atoi(tokenString);}
-		RBRACKET SEMI  { $$ = newStmtNode(DeclareK);
+		RBRACKET SEMI  { $$ = newStmtNode(VdeclareK);
 				$$->attr.name = $2->attr.name;
 				$$->child[0] = $1;
 				$$->child[1] = newExpNode(ConstK);
@@ -69,11 +69,10 @@ type_specifier : INT { $$ = newExpNode(TypeK);
 	    ;
 fun_declaration : type_specifier id
 		LPAREN params RPAREN compound_stmt {
-						$$ = newStmtNode(DeclareK);
+						$$ = newStmtNode(FdeclareK);
 						$$->attr.name = $2->attr.name;
-						$$->child[0] = $1;
-						$$->child[1] = $4;
-						$$->child[2] = $6;
+						$$->child[0] = $4;
+						$$->child[1] = $6;
 						}
 	    ;
 id	    : ID { $$ = newExpNode(IdK);
@@ -97,12 +96,12 @@ param_list  : param_list COMMA param { YYSTYPE t = $1;
 	    | param { $$ = $1;}
 	    ;
 param	    : type_specifier id { 
-				$$ = newStmtNode(DeclareK);
+				$$ = newStmtNode(ParameterK);
 				$$->attr.name = $2->attr.name;
 				$$->child[0] = $1;
 				}
 	    | type_specifier id
-		LBRACKET RBRACKET { $$ = newStmtNode(DeclareK);
+		LBRACKET RBRACKET { $$ = newStmtNode(ParameterK);
 					$$->attr.name = $2->attr.name;
 					$$->child[0] = $1;
 					}
@@ -170,17 +169,18 @@ expression  : var ASSIGN expression { $$ = newStmtNode(AssignK);
 					}
 	    | simple_expression { $$ = $1;}
 	    ;
-var	    : id { $$ = $1;}
+var	    : id { $$ = newExpNode(VarK);
+		   $$->attr.name = $1->attr.name;
+		 }
 	    | id LBRACKET expression RBRACKET { $$ = newExpNode(IdK);
 						$$->attr.name = $1->attr.name;
 						$$->child[0] = $3;
-						}
-						
+						}			
 	    ;
-simple_expression : additive_expression relop additive_expression { $$ = newExpNode(OpK);
+simple_expression : additive_expression relop additive_expression { $$ = newExpNode(SimK);
 								$$->child[0] = $1;
-								$$->child[1] = $3;
-								$$->attr.op = $2->attr.op;
+								$$->child[1] = $2;
+								$$->child[2] = $3;
 								}
 	    | additive_expression { $$ = $1;}
 	    ;
@@ -203,10 +203,10 @@ relop	    : LTE { $$ = newExpNode(OpK);
 			$$->attr.op = NEQ;
 			}
 	    ;
-additive_expression : additive_expression addop term { $$ = newExpNode(OpK);
+additive_expression : additive_expression addop term { $$ = newExpNode(AddK);
 							$$->child[0] = $1;
-							$$->child[1] = $3;
-							$$->attr.op = $2->attr.op;
+							$$->child[1] = $2;
+							$$->child[2] = $3;
 							}
 	    | term { $$ = $1; }
 	    ;
